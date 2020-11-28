@@ -169,15 +169,19 @@ async def on_ready():
 async def on_message(message):
     try:
         if " " in message.content.strip():
-            msg_list = message.content.strip().split(" ")
+            # Remove punctuation/discord markup
+            msg_list = "".join(m for m in message.content.strip() if m not in
+                               ('!', ',', '.', ':', '$', '@', '*', '~', '_')).split(" ")
+            # With punctuation for reformatted embed
+            msg_list_original = message.content.strip().split(" ")
             syl = []
             sum = 0
             i = 0
             combined = [[] for _ in range(len(msg_list))]
-            for word in msg_list:
-                syl.append(get_syllable_count(word))
-                combined[i].append(get_syllable_count(word))
-                combined[i].append(word)
+            for j in range(len(msg_list)):
+                syl.append(get_syllable_count(msg_list[j]))
+                combined[i].append(get_syllable_count(msg_list[j]))
+                combined[i].append(msg_list_original[j])
                 sum += combined[i][0]
                 i += 1
             keep_going = True
@@ -221,11 +225,11 @@ async def on_message(message):
                     embed = discord.Embed(title=f"Haiku by {message.author}", color=discord.Color.from_rgb(34, 139, 34),
                                           timestamp=datetime.datetime.utcnow())
                     embed.add_field(name='\u200b', value=" ".join(haiku[0]))
-                    embed.add_field(name='\u200b', value='\u200b')
-                    embed.add_field(name='\u200b', value='\u200b')
+                    embed.add_field(name='\u200b', value='\u200b')  # Padding
+                    embed.add_field(name='\u200b', value='\u200b')  # Padding
                     embed.add_field(name='\u200b', value=" ".join(haiku[1]))
-                    embed.add_field(name='\u200b', value='\u200b')
-                    embed.add_field(name='\u200b', value='\u200b')
+                    embed.add_field(name='\u200b', value='\u200b')  # Padding
+                    embed.add_field(name='\u200b', value='\u200b')  # Padding
                     embed.add_field(name='\u200b', value=" ".join(haiku[2]))
                     await message.channel.send(embed=embed)
     except TypeError:
